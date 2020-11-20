@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 from matplotlib.path import Path
 import matplotlib.patches as patches
-from data.model import *
+from model.base import *
 
 
 def side_matching_plot(d: BooksComparison, scaling=False, highlight_fn=None, keep_fn=None, with_structure=False):
