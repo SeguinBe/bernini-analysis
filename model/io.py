@@ -1,10 +1,21 @@
 import pandas as pd
+import json
 from .base import *
 
 
+def _get_book_data(filename: str) -> (int, str):
+    with open(filename, 'r') as f:
+        d = json.load(f)
+    return len(d['pages']), d['text']
+
+
 def parse_df(df: pd.DataFrame) -> BooksComparison:
-    domenico_book = Book(shorthand='domenico', author='Domenico Bernini', title='TEST', year=1713)
-    baldinucci_book = Book(shorthand='baldinucci', author='Baldinucci', title='TEST', year=1682)
+    nb_images, text = _get_book_data('data/domenico.json')
+    domenico_book = Book(shorthand='domenico', author='Domenico Bernini', title='TEST', year=1713,
+                         text=text, nb_images=nb_images)
+    nb_images, text = _get_book_data('data/baldinucci.json')
+    baldinucci_book = Book(shorthand='baldinucci', author='Baldinucci', title='TEST', year=1682,
+                           text=text, nb_images=nb_images)
     # TODO add book structure
 
     books_by_sh = {b.shorthand: b for b in [domenico_book, baldinucci_book]}

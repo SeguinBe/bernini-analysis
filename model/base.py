@@ -11,6 +11,8 @@ class Book:
     title: str = attr.ib()
     year: int = attr.ib()
     structure: List = attr.ib(default=list)
+    nb_images: int = attr.ib(default=0)
+    text: str = attr.ib(default='')
 
     def short_descriptor(self) -> str:
         return f"{self.author}, {self.year}"
