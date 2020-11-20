@@ -2,6 +2,13 @@ import attr
 from typing import List, Optional
 from collections import defaultdict
 from enum import Enum
+from IPython.display import HTML, display
+
+display(HTML("""
+<style>
+
+</style>
+"""))
 
 
 @attr.s
@@ -12,7 +19,7 @@ class Book:
     year: int = attr.ib()
     structure: List = attr.ib(default=list)
     nb_images: int = attr.ib(default=0)
-    text: str = attr.ib(default='')
+    text: str = attr.ib(default='', repr=False)
 
     def short_descriptor(self) -> str:
         return f"{self.author}, {self.year}"
@@ -70,7 +77,7 @@ class NarratorType(Enum):
 
 @attr.s
 class Passage:
-    book: Book = attr.ib()
+    book: Book = attr.ib(repr=lambda b: b.shorthand)
     begin_c: int = attr.ib()
     end_c: int = attr.ib()
     image_number: int = attr.ib()
@@ -157,6 +164,38 @@ class Match:
     @property
     def common_entities(self) -> List[EntityMention]:
         raise NotImplementedError
+
+    def display(self, context=300):
+        def _make_str(p: Passage):
+            s = f"""
+            <em>{p.book.text[max(0, p.begin_c-context):p.begin_c]}</em>
+            <strong>{p.book.text[p.begin_c:p.end_c]}</strong>
+            <em>{p.book.text[p.end_c:min(len(p.book.text)-1, p.end_c + context)]}</em>
+            """
+            return s
+
+        text = f"""
+         <table style="width:100%; text-align:left;">
+          <tr>
+            <th>{self.left.book.short_descriptor()} | (#{self.left.image_number})</th>
+            <th>{self.right.book.short_descriptor()} | (#{self.right.image_number})</th>
+          </tr>
+          <tr>
+            <td style="text-align:justify;">
+                {_make_str(self.left)}
+            </td>
+            <td style="text-align:justify;">
+                {_make_str(self.right)}
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align:justify;">
+            </td>
+            <td style="text-align:right;">id={self.id}</td>
+          </tr>
+        </table> 
+        """
+        display(HTML(text))
 
 
 @attr.s
