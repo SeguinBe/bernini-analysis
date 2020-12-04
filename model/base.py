@@ -138,6 +138,10 @@ class Passage:
                 return NarratorType.THIRD_PARTY
         return None
 
+    @property
+    def page_number(self) -> int:
+        return self.image_number - self.book.pageimage_offset
+
 
 @attr.s
 class Match:
@@ -202,8 +206,8 @@ class Match:
         text = f"""
          <table style="width:100%; text-align:left;">
           <tr>
-            <th>{self.left.book.short_descriptor()} | (#{self.left.image_number})</th>
-            <th>{self.right.book.short_descriptor()} | (#{self.right.image_number})</th>
+            <th>{self.left.book.short_descriptor()} | (Page {self.left.page_number}, Image {self.left.image_number})</th>
+            <th>{self.right.book.short_descriptor()} | (Page {self.right.page_number}, Image {self.right.image_number})</th>
           </tr>
           <tr>
             <td style="text-align:justify;">
