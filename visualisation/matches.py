@@ -139,7 +139,7 @@ def side_matching_plot(d: BooksComparison,
             pcb = patron.image_number_begin / max_p1
             pce = patron.image_number_end / max_p1
 
-            plt.text(-0.45, (pcb + pce) / 2, cn, horizontalalignment='left',
+            plt.text(-0.3, (pcb + pce) / 2, cn, horizontalalignment='center',
                      verticalalignment='center', fontsize=8, alpha=0.8)
 
             plt.axhspan(pcb - 0.5 / max_p1, pce + 0.5 / max_p1, 0.1, 0.18, facecolor='white', ec='gray', alpha=1)
