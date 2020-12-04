@@ -9,6 +9,15 @@ def _get_book_data(filename: str) -> (int, str):
     return len(d['pages']), d['text']
 
 
+def _add_structure_data(filename: str, b: Book):
+    with open(filename, 'r') as f:
+        d = json.load(f)
+    b.pageimage_offset = d['pageimage_offset']
+    b.nb_pages = d['page_number_max']
+    b.sections_sequences['chapters'] = [BookSection(**s) for s in d['chapters']]
+    b.sections_sequences['patrons'] = [BookSection(**s) for s in d['patrons']]
+
+
 def parse_df(df: pd.DataFrame) -> BooksComparison:
     nb_images, text = _get_book_data('data/domenico.json')
     domenico_book = Book(shorthand='domenico', author='Domenico Bernini', title='TEST', year=1713,
@@ -16,7 +25,9 @@ def parse_df(df: pd.DataFrame) -> BooksComparison:
     nb_images, text = _get_book_data('data/baldinucci.json')
     baldinucci_book = Book(shorthand='baldinucci', author='Baldinucci', title='TEST', year=1682,
                            text=text, nb_images=nb_images)
-    # TODO add book structure
+
+    _add_structure_data('data/domenico_structure.json', domenico_book)
+    _add_structure_data('data/baldinucci_structure.json', domenico_book)
 
     books_by_sh = {b.shorthand: b for b in [domenico_book, baldinucci_book]}
     left_sh = 'domenico'

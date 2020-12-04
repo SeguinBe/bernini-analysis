@@ -1,8 +1,20 @@
 import attr
-from typing import List, Optional
+from typing import List, Optional, Dict
 from collections import defaultdict
 from enum import Enum
 from IPython.display import HTML, display
+
+
+@attr.s
+class BookSection:
+    # TODO somehow these can be float??
+    page_number_begin: int = attr.ib()
+    page_number_end: int = attr.ib()
+    image_number_begin: int = attr.ib()
+    image_number_end: int = attr.ib()
+    name: str = attr.ib()
+    name_id: str = attr.ib(default="")
+    id: Optional[int] = attr.ib(default=None)
 
 
 @attr.s
@@ -11,12 +23,24 @@ class Book:
     author: str = attr.ib()
     title: str = attr.ib()
     year: int = attr.ib()
-    structure: List = attr.ib(default=list)
     nb_images: int = attr.ib(default=0)
+    nb_pages: int = attr.ib(default=0)
+    pageimage_offset: int = attr.ib(default=0)
+
     text: str = attr.ib(default='', repr=False)
+
+    sections_sequences: Dict[str, List[BookSection]] = attr.ib(default=defaultdict(list))
 
     def short_descriptor(self) -> str:
         return f"{self.author}, {self.year}"
+
+    @property
+    def chapter_sections(self) -> List[BookSection]:
+        return self.sections_sequences['chapters']
+
+    @property
+    def patron_sections(self) -> List[BookSection]:
+        return self.sections_sequences['patrons']
 
 
 @attr.s(hash=True)
@@ -192,7 +216,7 @@ class Match:
           <tr>
             <td style="text-align:justify;">
             </td>
-            <td style="text-align:right;"><a href="{self.raw_data['link']}">Link</a>id={self.id}</td>
+            <td style="text-align:right;"><a href="{self.raw_data['link']}" target="_blank">Link</a>   id={self.id}</td>
           </tr>
         </table> 
         """
