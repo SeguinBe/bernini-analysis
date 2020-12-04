@@ -29,7 +29,7 @@ class Book:
 
     text: str = attr.ib(default='', repr=False)
 
-    sections_sequences: Dict[str, List[BookSection]] = attr.ib(default=defaultdict(list))
+    sections_sequences: Dict[str, List[BookSection]] = attr.ib(default=attr.Factory(dict))
 
     def short_descriptor(self) -> str:
         return f"{self.author}, {self.year}"
@@ -216,7 +216,7 @@ class Match:
           <tr>
             <td style="text-align:justify;">
             </td>
-            <td style="text-align:right;"><a href="{self.raw_data['link']}" target="_blank">Link</a>   id={self.id}</td>
+            <td style="text-align:right;"><a href="{self.raw_data['link']}" target="_blank">See in Context</a>   id={self.id}</td>
           </tr>
         </table> 
         """

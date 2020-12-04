@@ -27,7 +27,7 @@ def parse_df(df: pd.DataFrame) -> BooksComparison:
                            text=text, nb_images=nb_images)
 
     _add_structure_data('data/domenico_structure.json', domenico_book)
-    _add_structure_data('data/baldinucci_structure.json', domenico_book)
+    _add_structure_data('data/baldinucci_structure.json', baldinucci_book)
 
     books_by_sh = {b.shorthand: b for b in [domenico_book, baldinucci_book]}
     left_sh = 'domenico'
