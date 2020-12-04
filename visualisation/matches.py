@@ -158,6 +158,7 @@ def side_matching_plot(d: BooksComparison,
     ax.set_xlim(-1, L + 1)
     if scaling:
         ax.set_ylim(1.0, 0.0)
+        ax.set_yticklabels([])
     else:
         ax.set_ylim(max_p+5, -1)
     ax.set_ylabel('Image number')
