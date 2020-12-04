@@ -4,12 +4,6 @@ from collections import defaultdict
 from enum import Enum
 from IPython.display import HTML, display
 
-display(HTML("""
-<style>
-
-</style>
-"""))
-
 
 @attr.s
 class Book:
@@ -29,6 +23,13 @@ class Book:
 class EntityMention:
     name: str = attr.ib()
     confident: bool = attr.ib(default=True)
+
+    @classmethod
+    def merge_list(cls, l: List['EntityMention']) -> List['EntityMention']:
+        c = defaultdict(lambda: False)
+        for e in l:
+            c[e.name] |= e.confident
+        return [EntityMention(name=k, confident=v) for k, v in c.items()]
 
 
 def _parse_entity_mentions(s: str) -> List[EntityMention]:
@@ -84,21 +85,21 @@ class Passage:
     text: str = attr.ib()
 
     # annotations
-    entities: List[EntityMention] = attr.ib(default=list)
+    persons: List[EntityMention] = attr.ib(default=list)
     works: List[EntityMention] = attr.ib(default=list)
     form: List[str] = attr.ib(default=None)
     content: List[str] = attr.ib(default=None)
     grouping = attr.ib(default=None)
-    service: Optional[EntityMention] = attr.ib(default=None)
+    patron: Optional[EntityMention] = attr.ib(default=None)
     place: Optional[EntityMention] = attr.ib(default=None)
 
     def __attrs_post_init__(self):
         # parse the list properly
-        self.entities = _parse_entity_mentions(self.entities)
+        self.persons = _parse_entity_mentions(self.persons)
         self.works = _parse_entity_mentions(self.works)
         self.form = _parse_list(self.form)
         self.content = _parse_list(self.content)
-        self.service = _parse_optional_entity(self.service)
+        self.patron = _parse_optional_entity(self.patron)
         self.place = _parse_optional_entity(self.place)
 
     #TODO Name it better
@@ -130,36 +131,36 @@ class Match:
         return not(self.irrelevant_type.startswith('FALSE') or self.irrelevant_type.startswith('FALSO'))
 
     @property
-    def all_entities(self) -> List[EntityMention]:
-        c = defaultdict(lambda: False)
-        for e in self.left.entities + self.right.entities:
-            c[e.name] |= e.confident
-        return [EntityMention(name=k, confident=v) for k, v in c.items()]
+    def all_persons(self) -> List[EntityMention]:
+        return EntityMention.merge_list(self.left.persons + self.right.persons)
 
     @property
     def all_works(self) -> List[EntityMention]:
-        c = defaultdict(lambda: False)
-        for e in self.left.works + self.right.works:
-            c[e.name] |= e.confident
-        return [EntityMention(name=k, confident=v) for k, v in c.items()]
+        return EntityMention.merge_list(self.left.works + self.right.works)
 
     @property
     def place(self) -> Optional[EntityMention]:
-        #TODO correct this
-        return self.left.place
+        if self.left.place:
+            return self.left.place
+        else:
+            return self.right.place
 
     @property
-    def service(self) -> Optional[EntityMention]:
-        # TODO correct this
-        return self.left.service
+    def patron(self) -> List[EntityMention]:
+        list_mentions = []
+        if self.left.patron is not None:
+            list_mentions.append(self.left.patron)
+        if self.right.patron is not None:
+            list_mentions.append(self.left.patron)
+        return EntityMention.merge_list(list_mentions)
 
     @property
     def form(self) -> List[str]:
-        return list(set(self.left.form+self.right.form))
+        return list(set(self.left.form + self.right.form))
 
     @property
     def content(self) -> List[str]:
-        return list(set(self.left.form + self.right.form))
+        return list(set(self.left.content + self.right.content))
 
     @property
     def common_entities(self) -> List[EntityMention]:
@@ -191,7 +192,7 @@ class Match:
           <tr>
             <td style="text-align:justify;">
             </td>
-            <td style="text-align:right;">id={self.id}</td>
+            <td style="text-align:right;"><a href="{self.raw_data['link']}">Link</a>id={self.id}</td>
           </tr>
         </table> 
         """

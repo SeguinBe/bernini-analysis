@@ -28,10 +28,11 @@ def parse_df(df: pd.DataFrame) -> BooksComparison:
                        end_c=r[key + '.end'],
                        image_number=r[key + '.image_number'],
                        text=r[key + '.text'],
-                       entities=r['entity_' + key],
+                       persons=r['person_' + key],
                        works=r['work_' + key],
                        form=r['form_' + key],
                        content=r['content_' + key],
+                       patron=r['patron_' + key]
                        )
 
     matches = []
