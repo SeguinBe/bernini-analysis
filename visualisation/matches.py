@@ -38,7 +38,7 @@ class Highlighters:
 
 def side_matching_plot(d: BooksComparison,
                        scaling=False,
-                       highlight_fn: Optional[Callable[[Match], Union[bool, Tuple[bool, Dict]]]] = None,
+                       highlight_fn: Optional[Callable[[Match], Union[bool, Tuple[bool, Union[Dict, Tuple[Dict, Dict]]]]]] = None,
                        keep_fn: Optional[Callable[[Match], bool]] = None,
                        with_structure=False,
                        title=None):
@@ -48,7 +48,8 @@ def side_matching_plot(d: BooksComparison,
     :param scaling: scale the vertical axis so both books occupy all the vertical space even if they have different
                     number of pages
     :param highlight_fn: function that takes a match as input and returns a single bool if it should be highlighted
-                    or a tuple (bool, dict) with the drawing parameters of the line
+                    or a tuple (bool, params) with the drawing parameters of the line. The params can be a tuple of dicts
+                    if both sides should highlighted differently
     :param keep_fn: functions that takes a match as input and returns if the match should be drawn or not
     :param with_structure:
     :param title:
@@ -84,21 +85,26 @@ def side_matching_plot(d: BooksComparison,
         y1 = p1/max_p1
         y2 = p2/max_p2
 
-        verts = [
-            (0., y1),   # P0
-            (L/2, y1),  # P1
-            (L/2, y2),  # P2
-            (L, y2),  # P3
+        # Left part of the arc
+        verts1 = [
+            (0., y1),  # P0
+            (L / 4, y1),  # P1
+            (L / 2, abs((y2 - y1) / 2 + y1)),  # P3
+        ]
+        # Right part
+        verts2 = [
+            (L / 2, abs((y2 - y1) / 2 + y1)),
+            (3 * L / 4, y2),
+            (L, y2)  # P3
         ]
 
         codes = [
             Path.MOVETO,
-            Path.CURVE4,
-            Path.CURVE4,
-            Path.CURVE4,
+            Path.CURVE3,
+            Path.CURVE3,
         ]
-        path = Path(verts, codes)
-
+        path1 = Path(verts1, codes)
+        path2 = Path(verts2, codes)
         do_highlight, drawing_params = _highlight_fn(match)
         if do_highlight:
             plt.text(-0.03, y1, l1, horizontalalignment='right',
@@ -107,8 +113,13 @@ def side_matching_plot(d: BooksComparison,
             plt.text(L+0.03, y2, l2, horizontalalignment='left',
                      verticalalignment='center', fontsize=6.5
                      )
-        patch = patches.PathPatch(path, facecolor='none', **drawing_params)
-
+        if not isinstance(drawing_params, tuple):
+            left_params, right_params = drawing_params, drawing_params
+        else:
+            left_params, right_params = drawing_params
+        patch = patches.PathPatch(path1, facecolor='none', **left_params)
+        ax.add_patch(patch)
+        patch = patches.PathPatch(path2, facecolor='none', **right_params)
         ax.add_patch(patch)
 
     # TODO this is a quick fix for the moment... should be much better
