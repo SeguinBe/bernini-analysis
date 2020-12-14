@@ -179,7 +179,7 @@ class Match:
         if self.left.patron is not None:
             list_mentions.append(self.left.patron)
         if self.right.patron is not None:
-            list_mentions.append(self.left.patron)
+            list_mentions.append(self.right.patron)
         return EntityMention.merge_list(list_mentions)
 
     @property
