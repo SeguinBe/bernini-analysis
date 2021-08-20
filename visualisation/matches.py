@@ -71,8 +71,8 @@ def side_matching_plot(d: BooksComparison,
     else:
         _highlight_fn = highlight_fn
 
-    max_p1 = d.book_left.nb_images
-    max_p2 = d.book_right.nb_images
+    max_p1 = max(ss.image_number_end for s in d.book_left.sections_sequences.values() for ss in s)
+    max_p2 = max(ss.image_number_end for s in d.book_left.sections_sequences.values() for ss in s)
     max_p = max(max_p1, max_p2)
     if not scaling:
         max_p1 = 1.0
